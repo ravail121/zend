@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  php-apache:
+    build:
+      context: .
+    ports:
+      - "8081:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Set the root password
+      MYSQL_DATABASE: new  # The database name
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - mynetwork
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: db  # Link to the MySQL service
+      MYSQL_ROOT_PASSWORD: root  # Same root password as the MySQL service
+    ports:
+      - "8082:80"  # Expose phpMyAdmin on port 8082
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+
+volumes:
+  db-data:
+
+networks:
+  mynetwork:
