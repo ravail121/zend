@@ -11,6 +11,7 @@ return array(
     'Past' => 'Passé',
     'Closed' => 'Fermé',
     'Free' => 'Libre',
+    'Not Available' => '',
     'Still free' => 'Toujours Libre',
     'Conflict' => 'Conflict',
     'Occupied' => 'Occupé',

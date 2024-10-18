@@ -11,6 +11,7 @@ return array(
     'Past' => 'Múlt',
     'Too far' => 'Túl távoli',
     'Closed' => 'Zárt',
+    'Not Available' => '',
     'Free' => 'Szabad',
     'Still free' => 'Még szabad',
     'Conflict' => 'Konfliktus',

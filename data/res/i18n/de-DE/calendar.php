@@ -11,6 +11,7 @@ return array(
     'Past' => 'Vorbei',
     'Too far' => 'Zu fern',
     'Closed' => 'Geschlossen',
+    'Not Available' => '',
     'Free' => 'Frei',
     'Still free' => 'Noch frei',
     'Conflict' => 'Konflikt',

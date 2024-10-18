@@ -86,31 +86,39 @@ class CalendarController extends AbstractActionController
 
         $squares = $this->calendarDetermineSquares();
         $squaresCount = count($squares);
+        
         $squaresFilter = $this->params()->fromQuery('squares');
         // Collect each square's timings
-        $squareTimings = [];
-        $timeBlockCount=0;
+        $timeline = [];
         
         foreach ($squares as $square) {
+            $squareName = $square->get('name');
             $timeStart = $square->need('time_start');
             $timeEnd = $square->need('time_end');
             $timeBlock = $square->need('time_block');
-            $timeBlockCount = ceil(($timeEnd - $timeStart) / $timeBlock);
-
-            $currentTimePartsStart = explode(':', $timeStart);
-            $currentTimePartsEnd = explode(':', $timeEnd);
-
-            $startTimeInSeconds = $currentTimePartsStart[0] * 3600 + $currentTimePartsStart[1] * 60;
-            $endTimeInSeconds = $currentTimePartsEnd[0] * 3600 + $currentTimePartsEnd[1] * 60;
-
-            $squareTimings[] = [
-                'timeStart' => $startTimeInSeconds,
-                'timeEnd' => $endTimeInSeconds,
-                'timeBlock' => $timeBlock
-            ];
+    
+            // Convert start/end times into seconds for calculation
+            $startTimeInSeconds = $this->timeToSeconds($timeStart);
+            $endTimeInSeconds = $this->timeToSeconds($timeEnd);
+            $timeBlockCount = ceil(($endTimeInSeconds - $startTimeInSeconds) / $timeBlock);
+            // Loop through and add time blocks to the timeline
+            for ($currentTime = $startTimeInSeconds; $currentTime < $endTimeInSeconds; $currentTime += $timeBlock) {
+                $timeline[] = [
+                    'square' => $squareName,
+                    'timeStart' => $currentTime,
+                    'timeEnd' => $currentTime + $timeBlock,
+                    'timeBlock' => $timeBlock
+                ];
+            }
         }
+        $squareManager->getMinStartTime();
+        $squareManager->getMaxEndTime();
+        // Sort the timeline by timeStart
+        usort($timeline, function ($a, $b) {
+            return $a['timeStart'] <=> $b['timeStart'];
+        });
         // echo '<pre>';
-        // var_dump($squareTimings);
+        // var_dump($squaresCount);
         // echo '</pre>';
         // die();
         
@@ -144,7 +152,7 @@ class CalendarController extends AbstractActionController
             $userManager->getByBookings($bookings);
         }
         //         echo '<pre>';
-        // var_dump($dateStart);
+        // var_dump($timeBlockCount);
         // echo '</pre>';
         // die();
 
@@ -155,7 +163,7 @@ class CalendarController extends AbstractActionController
             'dateEnd' => $dateEnd,
             'dateNow' => $dateNow,
             'timeBlockCount' => $timeBlockCount,
-            'squareTimings' => $squareTimings, // Pass square timings to the view
+            'squareTimings' => $timeline, // Pass square timings to the view
             'daysToRender' => $daysToRender,
             'dayExceptions' => $dayExceptions,
             'dayExceptionsExceptions' => $dayExceptionsExceptions,
@@ -166,6 +174,12 @@ class CalendarController extends AbstractActionController
             'events' => $events,
             'user' => $user,
         );
+    }
+    // Utility function to convert time (HH:mm) to seconds
+    protected function timeToSeconds($time)
+    {
+        list($hours, $minutes) = explode(':', $time);
+        return ($hours * 3600) + ($minutes * 60);
     }
 
 }

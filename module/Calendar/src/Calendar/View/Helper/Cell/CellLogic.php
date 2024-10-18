@@ -7,13 +7,13 @@ use Zend\View\Helper\AbstractHelper;
 class CellLogic extends AbstractHelper
 {
 
-    public function __invoke($walkingDate, $walkingTime, $timeBlock, $now, $square, $user, $reservationsForCol, $eventsForCol)
+    public function __invoke($walkingDate, $walkingTime, $timeBlock, $now, $square, $user, $reservationsForCol, $eventsForCol,$timingName)
     {
         return sprintf('<td>%s</td>',
-            $this->determineCell($walkingDate, $walkingTime, $timeBlock, $now, $square, $user, $reservationsForCol, $eventsForCol));
+            $this->determineCell($walkingDate, $walkingTime, $timeBlock, $now, $square, $user, $reservationsForCol, $eventsForCol,$timingName));
     }
 
-    protected function determineCell($walkingDate, $walkingTime, $timeBlock, $now, $square, $user, $reservationsForCol, $eventsForCol)
+    protected function determineCell($walkingDate, $walkingTime, $timeBlock, $now, $square, $user, $reservationsForCol, $eventsForCol,$timingName)
     {
         $view = $this->getView();
 
@@ -70,10 +70,13 @@ class CellLogic extends AbstractHelper
                 }
             }
         }
-
+        if($timingName != $square->get('name')){
+            return $view->calendarCell($this->view->t(''), 'cc-over');
+        }
         if ($walkingTime < $square->needExtra('time_start_sec') || $walkingTime >= $square->needExtra('time_end_sec')) {
             return $view->calendarCell($this->view->t('Closed'), 'cc-over');
         }
+
 
         $reservationsForCell = $view->calendarReservationsForCell($reservationsForCol, $square);
         $eventsForCell = $view->calendarEventsForCell($eventsForCol, $square);
